@@ -31,3 +31,8 @@
 # Debug files
 *.dSYM/
 *.su
+
+*.lss
+*.map
+*.eep
+*.o.d
