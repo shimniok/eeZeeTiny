@@ -1,26 +1,42 @@
 ###############################################################################
-# Makefile for the project eeZeeTinyTest1
+# Makefile for Larson scanner
 ###############################################################################
 
-## General Flags
-PROJECT 		= larson
-MCU 			= attiny85
-PORT 			= usb
-PROGRAMMER 		= dragon_isp
-F_CPU 			= 1000000UL
-TARGET 			= $(PROJECT).elf
-AVRBIN 			= /opt/avr/bin
-CC 			= $(AVRBIN)/avr-gcc
-CPP 			= $(AVRBIN)/avr-g++
-OBJCOPY			= $(AVRBIN)/avr-objcopy
-OBJDUMP			= $(AVRBIN)/avr-objdump
-SIZE			= $(AVRBIN)/avr-size
-AVRDUDE			= avrdude
+## Programmer
+PORT       = usb
+PROGRAMMER = dragon_isp
 
-# ATtiny85 Fuses
-LFUSE = 0x62
-HFUSE = 0xdf
-EFUSE = 0xff
+## General Flags
+PROJECT    = larson
+TARGET     = $(PROJECT).elf
+AVRBIN 	   = /opt/avr/bin
+CC         = $(AVRBIN)/avr-gcc
+CPP        = $(AVRBIN)/avr-g++
+OBJCOPY    = $(AVRBIN)/avr-objcopy
+OBJDUMP    = $(AVRBIN)/avr-objdump
+SIZE       = $(AVRBIN)/avr-size
+AVRDUDE    = avrdude
+
+ifeq ($(MAKECMDGOALS), t85)
+  # ATtiny85 build variables
+  MCU   = attiny85
+  F_CPU = 1000000UL
+  LFUSE = 0x62
+  HFUSE = 0xdf
+  EFUSE = 0xff
+  FUSES = -U lfuse:w:$(LFUSE):m -U hfuse:w:$(HFUSE):m -U efuse:w:$(EFUSE):m
+endif
+
+ifeq ($(MAKECMDGOALS), t13)
+  #ATtiny13 build variables
+  MCU   = attiny13
+  F_CPU = 1200000UL
+  LFUSE = 0x6a
+  HFUSE = 0xff
+  FUSES = -U lfuse:w:$(LFUSE):m -U hfuse:w:$(HFUSE):m
+endif
+
+include *.mk
 
 ## Objects that must be built in order to link
 OBJECTS = larson.o 
@@ -52,8 +68,20 @@ HEX_EEPROM_FLAGS += --change-section-lma .eeprom=0 --no-change-warnings
 ## Objects explicitly added by the user
 LINKONLYOBJECTS = 
 
-## Build
-all: $(TARGET) $(PROJECT).hex $(PROJECT).eep $(PROJECT).lss size
+## Targets
+
+all:
+	@echo "Please select target, t85 or t13"
+
+# Build for t85
+t85: save_target $(TARGET) $(PROJECT).hex $(PROJECT).eep $(PROJECT).lss size
+
+# Build for t13
+t13: save_target $(TARGET) $(PROJECT).hex $(PROJECT).eep $(PROJECT).lss size
+
+save_target:
+	@echo "MCU = $(MCU)" > target.mk
+
 
 ## Compile
 main.o: main.c
@@ -73,18 +101,18 @@ $(TARGET): $(OBJECTS)
 	$(OBJDUMP) -h -S $< > $@
 
 install: $(PROJECT).hex 
-	$(AVRDUDE) -B 10 -p $(MCU) -c $(PROGRAMMER) -P $(PORT) -v -U flash:w:$(PROJECT).hex -U lfuse:w:$(LFUSE):m -U hfuse:w:$(HFUSE):m -U efuse:w:$(EFUSE):m
+	$(AVRDUDE) -B 10 -p $(MCU) -c $(PROGRAMMER) -P $(PORT) -v -U flash:w:$(PROJECT).hex $(FUSES)
 
 ## required for avr dragon to reset itself
 delay: fuses
 	@sleep 3
 
 fuses:
-	$(AVRDUDE) -p $(MCU) -c $(PROGRAMMER) -P $(PORT) -v -U lfuse:w:$(LFUSE):m -U hfuse:w:$(HFUSE):m -U efuse:w:$(EFUSE):m
+	$(AVRDUDE) -p $(MCU) -c $(PROGRAMMER) -P $(PORT) -v $(FUSES)
 
 size: ${TARGET}
 	@echo
-	@$(SIZE) -C --mcu=${MCU} ${TARGET}
+	@$(SIZE) -C --mcu=$(MCU) $(TARGET)
 
 ## Clean target
 .PHONY: clean
