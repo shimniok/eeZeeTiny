@@ -3,8 +3,10 @@
 ###############################################################################
 
 ## Programmer
-PORT       = usb
-PROGRAMMER = dragon_isp
+#PORT       = usb
+#PROGRAMMER = dragon_isp
+PORT       = /dev/ttyUSB0
+PROGRAMMER = avrispv2
 
 ## General Flags
 PROJECT    = larson
@@ -71,7 +73,10 @@ LINKONLYOBJECTS =
 ## Targets
 
 all:
-	@echo "Please select target, t85 or t13"
+	@echo "Please select a target MCU:"
+	@echo "  make t85"
+	@echo "or"
+	@echo "  make t13"
 
 # Build for t85
 t85: save_target $(TARGET) $(PROJECT).hex $(PROJECT).eep $(PROJECT).lss size
@@ -101,7 +106,7 @@ $(TARGET): $(OBJECTS)
 	$(OBJDUMP) -h -S $< > $@
 
 install: $(PROJECT).hex 
-	$(AVRDUDE) -B 10 -p $(MCU) -c $(PROGRAMMER) -P $(PORT) -v -U flash:w:$(PROJECT).hex $(FUSES)
+	$(AVRDUDE) -p $(MCU) -c $(PROGRAMMER) -P $(PORT) -v -U flash:w:$(PROJECT).hex $(FUSES)
 
 ## required for avr dragon to reset itself
 delay: fuses
