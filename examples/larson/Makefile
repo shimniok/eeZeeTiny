@@ -38,7 +38,9 @@ ifeq ($(MAKECMDGOALS), t13)
   FUSES = -U lfuse:w:$(LFUSE):m -U hfuse:w:$(HFUSE):m
 endif
 
-include *.mk
+ifeq ($(MAKECMDGOALS), install)
+  include target.mk
+endif
 
 ## Objects that must be built in order to link
 OBJECTS = larson.o 
@@ -79,14 +81,17 @@ all:
 	@echo "  make t13"
 
 # Build for t85
-t85: save_target $(TARGET) $(PROJECT).hex $(PROJECT).eep $(PROJECT).lss size
+t85: clean save_target
+t85: $(TARGET) $(PROJECT).hex $(PROJECT).eep $(PROJECT).lss size
 
 # Build for t13
-t13: save_target $(TARGET) $(PROJECT).hex $(PROJECT).eep $(PROJECT).lss size
+t13: clean save_target
+t13: $(TARGET) $(PROJECT).hex $(PROJECT).eep $(PROJECT).lss size
 
 save_target:
+	@echo "saving target"
 	@echo "MCU = $(MCU)" > target.mk
-
+	@echo "FUSES = $(FUSES)" >> target.mk
 
 ## Compile
 main.o: main.c
@@ -122,7 +127,7 @@ size: ${TARGET}
 ## Clean target
 .PHONY: clean
 clean:
-	-rm -rf $(OBJECTS) $(PROJECT).elf dep/* $(PROJECT).hex $(PROJECT).eep $(PROJECT).lss $(PROJECT).map
+	-rm -rf $(OBJECTS) $(PROJECT).elf dep/* $(PROJECT).hex $(PROJECT).eep $(PROJECT).lss $(PROJECT).map target.mk
 
 
 ## Other dependencies
