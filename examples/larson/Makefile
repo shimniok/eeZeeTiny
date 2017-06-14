@@ -5,8 +5,10 @@
 ## Programmer
 #PORT       = usb
 #PROGRAMMER = dragon_isp
+#PORT       = /dev/ttyUSB0
+#PROGRAMMER = avrispv2
 PORT       = /dev/ttyUSB0
-PROGRAMMER = avrispv2
+PROGRAMMER = usbasp
 
 ## General Flags
 PROJECT    = larson
