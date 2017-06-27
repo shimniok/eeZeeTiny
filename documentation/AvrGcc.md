@@ -22,9 +22,7 @@ Eclipse and the [AVR Plugin](http://avr-eclipse.sourceforge.net/wiki/index.php/T
 ## Flashing with avrdude
 
 * Install the latest version of [avrdude](http://www.nongnu.org/avrdude/).
-* For eeZeeTiny841, add the contents of [add\_to\_avrdude.conf](../setup/add_to_avrdude.conf) to your ```avrdude.conf``` so avrdude will recognize the ATtiny841 (still true as of May 17, 2017).
-
-**Please Note:** The location of ```avrdude.conf``` depends on your operating system, and the method of installation (rpm, distro, which package used, etc.)
+* Example code includes makefiles that use avrdude.
 
 ## Hardware Programmer
 
